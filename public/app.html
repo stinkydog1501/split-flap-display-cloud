@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <title>Split-Flap Display</title>
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <header class="bar">
+      <span class="who" id="who"></span>
+      <form method="POST" action="/auth/logout" class="logout-form">
+        <button type="submit" class="btn link">Sign out</button>
+      </form>
+    </header>
+
+    <main class="card hero">
+      <form id="send-form" autocomplete="off">
+        <div class="search-row">
+          <input
+            id="message"
+            name="message"
+            type="text"
+            maxlength="64"
+            required
+            autofocus
+            spellcheck="false"
+            autocapitalize="characters"
+            aria-label="Message to display"
+            placeholder=""
+          />
+          <button id="send-btn" type="submit" class="btn primary">Send</button>
+        </div>
+        <p id="status" class="status" role="status" aria-live="polite"></p>
+      </form>
+    </main>
+
+    <script src="/static/app.js" defer></script>
+  </body>
+</html>

@@ -1,0 +1,53 @@
+name: split-flap-display-cloud
+
+# Single-service compose file for the OAuth-gated front-end.
+#
+# This image talks to the LAN MQTT broker via outbound TCP/1883 only. No ports
+# are published to the host — the Cloudflare Tunnel sidecar (or `cloudflared`
+# running on the host network) is what accepts inbound HTTPS from the internet
+# and forwards to this container over the docker network. See README.md for the
+# full deployment walkthrough.
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: split-flap-display-cloud:latest
+    container_name: split-flap-display-cloud
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      # In a docker network, hostnames like `rpi41.local` and `host.docker.internal`
+      # work out of the box on Docker Desktop. On Linux, extra_hosts below adds
+      # the host gateway as `host.docker.internal` so the same .env works in dev.
+      NODE_ENV: production
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    extra_hosts:
+      # Lets MQTT_BROKER_URL=mqtt://host.docker.internal:1883 work for local dev
+      # on Linux. Safe to leave in place — unused unless your broker URL points
+      # at host.docker.internal.
+      - "host.docker.internal:host-gateway"
+    # No `ports:` section. The container is reachable only via the docker
+    # network, which is exactly the isolation we want.
+    networks:
+      - sflap
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://127.0.0.1:3000/api/me',r=>process.exit(r.statusCode<500?0:1)).on('error',()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    # Memory cap is generous for a service this small but leaves headroom for
+    # the mqtt.js client buffer if the broker is briefly unreachable.
+    mem_limit: 256m
+
+networks:
+  sflap:
+    driver: bridge
