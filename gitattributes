@@ -1,0 +1,17 @@
+# Automatically normalize line endings for all text files (recommends LF in repo)
+* text=auto
+
+# Shell scripts must strictly use LF to execute on macOS/Linux
+*.sh text eol=lf
+*.bash text eol=lf
+
+# Windows batch files must strictly use CRLF to execute on Windows
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Data & Configuration Formats
+*.json text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.toml text eol=lf
+*.md text eol=lf
